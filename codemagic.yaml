@@ -52,3 +52,42 @@ workflows:
     artifacts:
       - build/app/outputs/androidTest-results/connected/*
       - build/app/reports/androidTests/connected/*
+
+  android-ew-workflow:
+    name: Android Integration Tests on emulator.wtf
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      flutter: 3.16.3
+      groups:
+      - emulatorwtf
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.gradle/caches 
+    scripts:
+      - name: Install Patrol CLI
+        script: dart pub global activate patrol_cli
+      - name: Patrol doctor
+        script: |
+          flutter config --no-analytics
+          flutter --version
+          flutter doctor
+          patrol doctor
+        ignore_failure: true
+      - name: Build test-apk
+        script: |
+          flutter build apk --config-only
+          patrol build android
+      - name: Run integration tests on ew
+        script: |
+          ew-cli \
+            --app build/app/outputs/apk/debug/app-debug.apk \
+            --test build/app/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
+            --device model=Pixel2,version=33 \
+            --record-video \
+            --outputs-dir results
+        test_report: results/**/*.xml
+        ignore_failure: false
+    artifacts:
+      - results/*

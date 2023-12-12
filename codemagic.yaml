@@ -1,0 +1,54 @@
+# Config for codemagic CI/CD
+workflows:
+  ios-workflow:
+    name: iOS Integration Tests
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      flutter: 3.16.3
+      xcode: 14.3.1
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/Library/Caches/CocoaPods
+    scripts:
+      - name: Install Patrol CLI
+        script: dart pub global activate patrol_cli
+      - name: Launch iOS simulator
+        script: |
+          flutter emulators --launch apple_ios_simulator
+      - name: Run integration tests with Patrol
+        script: |
+          patrol test --verbose
+        test_report: build/*.xcresult
+        ignore_failure: false
+    artifacts:
+      - build/*.xcresult 
+
+  android-workflow:
+    name: Android Integration Tests
+    instance_type: linux_x2
+    max_build_duration: 60
+    environment:
+      flutter: 3.16.3
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.gradle/caches 
+    scripts:
+      - name: Install Patrol CLI
+        script: dart pub global activate patrol_cli
+      - name: Launch Android emulator
+        script: |
+          flutter emulators --launch emulator &
+          cd $ANDROID_HOME/tools
+          adb wait-for-device     
+      - name: Run integration tests with Patrol
+        script: |
+          flutter build apk --config-only
+          patrol test --verbose
+        test_report: build/app/outputs/androidTest-results/connected/*.xml
+        ignore_failure: false
+    artifacts:
+      - build/app/outputs/androidTest-results/connected/*
+      - build/app/reports/androidTests/connected/*

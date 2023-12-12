@@ -90,3 +90,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+patrol:
+  app_name: Patrol Demo
+  android:
+    package_name: com.example.patrol_demo
+  ios:
+    bundle_id: com.example.MyApp

@@ -60,7 +60,7 @@ workflows:
     environment:
       flutter: 3.16.3
       groups:
-      - emulatorwtf
+        - emulatorwtf
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -85,9 +85,7 @@ workflows:
             --app build/app/outputs/apk/debug/app-debug.apk \
             --test build/app/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
             --record-video \
-            --outputs-dir results \
-            --use-orchestrator \
-            --clear-package-data
+            --outputs-dir results
         test_report: results/**/*.xml
         ignore_failure: false
     artifacts:

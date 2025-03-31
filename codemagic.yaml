@@ -27,10 +27,9 @@ workflows:
 
   android-workflow:
     name: Android Integration Tests
-    instance_type: linux_x2
     max_build_duration: 60
     environment:
-      flutter: 3.16.3
+      flutter: 3.27.4
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -40,12 +39,13 @@ workflows:
         script: dart pub global activate patrol_cli
       - name: Launch Android emulator
         script: |
+          #!/usr/bin/env bash
+          flutter emulators
           flutter emulators --launch emulator &
-          cd $ANDROID_HOME/tools
-          adb wait-for-device     
+          adb wait-for-device
+          echo "Android emulator launched"
       - name: Run integration tests with Patrol
         script: |
-          flutter build apk --config-only
           patrol test --verbose
         test_report: build/app/outputs/androidTest-results/connected/*.xml
         ignore_failure: false
